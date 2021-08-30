@@ -44,6 +44,14 @@ class NetconfigConfig(object):
     def auth_password(self):
         return self._config.get('auth', 'password')
 
+    @property
+    def wifi_device(self):
+        return self._config.get('wifi', 'device')
+
+    @property
+    def wpa_supplicant_path(self):
+        return self._config.get('wifi', 'wpa_supplicant_path')
+
 
 _config = NetconfigConfig()
 sys.modules[__name__] = _config

@@ -39,6 +39,10 @@ auth_db = {
 }
 
 
+class ActionResultModel(BaseModel):
+    result: bool
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

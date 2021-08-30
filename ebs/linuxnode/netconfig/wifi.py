@@ -1,14 +1,22 @@
 
 
+import logging
+
 from typing import List
+from typing import Optional
 from pydantic import Field
 from pydantic import BaseModel
 from fastapi import Depends
 from wpasupplicantconf import WpaSupplicantConf
+
+from ebs.linuxnode.netconfig import config
 from ebs.linuxnode.netconfig.core import app
 from ebs.linuxnode.netconfig.core import auth_token
+from ebs.linuxnode.netconfig.core import ActionResultModel
 
-WPA_SUPPLICANT_PATH = '/home/chintal/wpa_supplicant.conf'
+
+logger = logging.getLogger(__name__)
+WPA_SUPPLICANT_PATH = config.wpa_supplicant_path
 
 
 class WiFiScanProxy(object):
@@ -26,11 +34,13 @@ class WPASupplicantProxy(object):
         self._config = self._read_config()
 
     def _read_config(self):
+        logger.info("Reading WPA supplicant configuration from {}".format(self._cpath))
         with open(self._cpath, 'r') as f:
             lines = f.readlines()
             return WpaSupplicantConf(lines)
 
     def _write_config(self):
+        logger.info("Writing WPA supplicant configuration to {}".format(self._cpath))
         with open(self._cpath, 'w') as f:
             self._config.write(f)
 
@@ -40,24 +50,32 @@ class WPASupplicantProxy(object):
                 for k, v in networks.items()]
 
     def add_network(self, ssid, psk, **kwargs):
+        logger.info("Adding WiFi network '{}' with psk '{}'".format(ssid, psk))
         self._config.add_network(ssid, psk=psk, key_mgmt="WPA-PSK", **kwargs)
         self._write_config()
 
     def remove_network(self, ssid):
+        logger.info("Removing WiFi network '{}'".format(ssid))
         self._config.remove_network(ssid)
         self._write_config()
 
 
-_wpa_supplicant = WPASupplicantProxy(WPA_SUPPLICANT_PATH)
+_wpa_supplicant: Optional[WPASupplicantProxy] = None
 
 
-class ActionResultModel(BaseModel):
-    result: bool
+@app.on_event('startup')
+async def init():
+    global _wpa_supplicant
+    _wpa_supplicant = WPASupplicantProxy(WPA_SUPPLICANT_PATH)
 
 
 @app.get("/wifi/networks/show", response_model=List[WifiNetworkModel], status_code=200)
 async def show_configured_wifi_networks(token: str = Depends(auth_token)):
-    return _wpa_supplicant.show_networks()
+    networks = _wpa_supplicant.show_networks()
+    logger.info("Currently configured networks :\n{}".format(
+        "\n".join(["{:20} {}".format(x.ssid, x.psk)
+                   for x in networks])))
+    return networks
 
 
 @app.post("/wifi/networks/add", response_model=ActionResultModel, status_code=201)

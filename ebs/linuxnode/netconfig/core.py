@@ -32,7 +32,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 app = FastAPI()
 
 auth_db = {
-    "starxmedia": {
+    AUTH_USERNAME: {
         "username": AUTH_USERNAME,
         "hashed_password": AUTH_HASHED_PASSWORD,
     },

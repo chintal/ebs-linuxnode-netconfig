@@ -8,7 +8,7 @@ from uvicorn import Config, Server
 from loguru import logger
 
 
-LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
+LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
 

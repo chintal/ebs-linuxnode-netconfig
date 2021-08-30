@@ -50,8 +50,10 @@ from ebs.linuxnode.netconfig.core import app
 
 
 def build_server():
-    import ebs.linuxnode.netconfig.core
-    import ebs.linuxnode.netconfig.wifi
+    from ebs.linuxnode.netconfig.core import auth_router
+    app.include_router(auth_router)
+    from ebs.linuxnode.netconfig.wifi import wifi_router
+    app.include_router(wifi_router)
 
 
 build_server()

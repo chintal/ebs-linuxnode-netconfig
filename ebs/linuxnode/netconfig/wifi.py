@@ -7,6 +7,8 @@ from typing import Optional
 from pydantic import Field
 from pydantic import BaseModel
 from fastapi import Depends
+from fastapi import APIRouter
+
 from wpasupplicantconf import WpaSupplicantConf
 
 from ebs.linuxnode.netconfig import config
@@ -14,9 +16,11 @@ from ebs.linuxnode.netconfig.core import app
 from ebs.linuxnode.netconfig.core import auth_token
 from ebs.linuxnode.netconfig.core import ActionResultModel
 
-
 logger = logging.getLogger(__name__)
 WPA_SUPPLICANT_PATH = config.wpa_supplicant_path
+
+wifi_router = APIRouter(prefix='/api/v1/wifi',
+                        dependencies=[Depends(auth_token)])
 
 
 class WiFiScanProxy(object):
@@ -69,8 +73,8 @@ async def init():
     _wpa_supplicant = WPASupplicantProxy(WPA_SUPPLICANT_PATH)
 
 
-@app.get("/wifi/networks/show", response_model=List[WifiNetworkModel], status_code=200)
-async def show_configured_wifi_networks(token: str = Depends(auth_token)):
+@wifi_router.get("/networks/show", response_model=List[WifiNetworkModel], status_code=200)
+async def show_configured_wifi_networks():
     networks = _wpa_supplicant.show_networks()
     logger.info("Currently configured networks :\n{}".format(
         "\n".join(["{:20} {}".format(x.ssid, x.psk)
@@ -78,23 +82,23 @@ async def show_configured_wifi_networks(token: str = Depends(auth_token)):
     return networks
 
 
-@app.post("/wifi/networks/add", response_model=ActionResultModel, status_code=201)
-async def add_wifi_network(network: WifiNetworkModel, token: str = Depends(auth_token)):
+@wifi_router.post("/networks/add", response_model=ActionResultModel, status_code=201)
+async def add_wifi_network(network: WifiNetworkModel):
     _wpa_supplicant.add_network(ssid=network.ssid, psk=network.psk)
     return {"result": True}
 
 
-@app.post("/wifi/networks/remove", response_model=ActionResultModel, status_code=200)
-async def remove_wifi_network(ssid: str, token: str = Depends(auth_token)):
+@wifi_router.post("/networks/remove", response_model=ActionResultModel, status_code=200)
+async def remove_wifi_network(ssid: str):
     _wpa_supplicant.remove_network(ssid=ssid)
     return {"result": True}
 
 
-@app.get("/wifi/status")
-async def wifi_network_status(token: str = Depends(auth_token)):
+@wifi_router.get("/status")
+async def wifi_network_status():
     return {"message": "WNS"}
 
 
-@app.get("/wifi/scan")
-async def scan_wifi_networks(token: str = Depends(auth_token)):
+@wifi_router.get("/scan")
+async def scan_wifi_networks():
     return {"message": "SN"}

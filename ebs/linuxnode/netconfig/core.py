@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
+from fastapi import APIRouter
 
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordRequestForm
@@ -27,9 +28,10 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/v1/token')
 
 app = FastAPI()
+auth_router = APIRouter(prefix='/api/v1')
 
 auth_db = {
     AUTH_USERNAME: {
@@ -125,7 +127,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-@app.post("/token", response_model=Token)
+@auth_router.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(auth_db, form_data.username, form_data.password)
     if not user:

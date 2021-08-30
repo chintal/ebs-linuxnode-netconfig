@@ -1,3 +1,0 @@
-[console_scripts]
-netconfig = ebs.linuxnode.netconfig.server:run_server
-

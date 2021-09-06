@@ -19,7 +19,7 @@ from ebs.linuxnode.netconfig.core import ActionResultModel
 logger = logging.getLogger(__name__)
 WPA_SUPPLICANT_PATH = config.wpa_supplicant_path
 
-wifi_router = APIRouter(prefix='/api/v1/wifi',
+wifi_router = APIRouter(prefix='/wifi',
                         dependencies=[Depends(auth_token)])
 
 

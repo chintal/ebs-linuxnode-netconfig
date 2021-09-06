@@ -7,6 +7,7 @@ _requires = [
     'python-multipart',
     'python-jose[cryptography]',
     'passlib[bcrypt]',
+    'aiofiles',
     'uvicorn',
     'loguru',
     'wpasupplicantconf',

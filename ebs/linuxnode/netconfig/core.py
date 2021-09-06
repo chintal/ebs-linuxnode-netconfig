@@ -28,10 +28,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/v1/token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
+api_app = FastAPI()
 app = FastAPI()
-auth_router = APIRouter(prefix='/api/v1')
+auth_router = APIRouter()
 
 auth_db = {
     AUTH_USERNAME: {

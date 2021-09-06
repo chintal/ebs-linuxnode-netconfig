@@ -3,9 +3,10 @@
 import os
 import logging
 import sys
+from loguru import logger
 
 from uvicorn import Config, Server
-from loguru import logger
+from fastapi.staticfiles import StaticFiles
 
 
 LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
@@ -46,14 +47,18 @@ def setup_logging():
                rotation="1 week", retention="14 days")
 
 
+from ebs.linuxnode.netconfig.core import api_app
 from ebs.linuxnode.netconfig.core import app
 
 
 def build_server():
     from ebs.linuxnode.netconfig.core import auth_router
-    app.include_router(auth_router)
+    api_app.include_router(auth_router)
     from ebs.linuxnode.netconfig.wifi import wifi_router
-    app.include_router(wifi_router)
+    api_app.include_router(wifi_router)
+    static_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    app.mount('/api', api_app)
+    app.mount('/', StaticFiles(directory=static_files_path, html=True), name="static")
 
 
 build_server()

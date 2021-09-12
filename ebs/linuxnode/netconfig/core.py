@@ -12,6 +12,8 @@ from fastapi import APIRouter
 
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from pydantic import BaseModel
 from passlib.context import CryptContext
@@ -32,6 +34,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 api_app = FastAPI()
 app = FastAPI()
+
+origins = ['*']
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
 auth_router = APIRouter()
 
 auth_db = {
@@ -142,3 +156,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@auth_router.get("/verifyToken")
+async def verify_token(token: str = Depends(auth_token)):
+    return token

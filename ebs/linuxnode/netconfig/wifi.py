@@ -6,8 +6,10 @@ from typing import List
 from typing import Optional
 from pydantic import Field
 from pydantic import BaseModel
+from fastapi import Body
 from fastapi import Depends
 from fastapi import APIRouter
+from fastapi import HTTPException
 
 from wpasupplicantconf import WpaSupplicantConf
 
@@ -53,6 +55,9 @@ class WPASupplicantProxy(object):
         return [WifiNetworkModel(ssid=k, psk=v['psk'])
                 for k, v in networks.items()]
 
+    def has_network(self, ssid):
+        return ssid in self._config.networks()
+
     def add_network(self, ssid, psk, **kwargs):
         logger.info("Adding WiFi network '{}' with psk '{}'".format(ssid, psk))
         self._config.add_network(ssid, psk=psk, key_mgmt="WPA-PSK", **kwargs)
@@ -84,12 +89,23 @@ async def show_configured_wifi_networks():
 
 @wifi_router.post("/networks/add", response_model=ActionResultModel, status_code=201)
 async def add_wifi_network(network: WifiNetworkModel):
+    if _wpa_supplicant.has_network(network.ssid):
+        raise HTTPException(
+            status_code=409,
+            detail="SSID '{}' already exists. Modify the existing network or remove it and try again."
+                   "".format(network.ssid)
+        )
     _wpa_supplicant.add_network(ssid=network.ssid, psk=network.psk)
     return {"result": True}
 
 
 @wifi_router.post("/networks/remove", response_model=ActionResultModel, status_code=200)
-async def remove_wifi_network(ssid: str):
+async def remove_wifi_network(ssid: str = Body(...)):
+    if not _wpa_supplicant.has_network(ssid):
+        raise HTTPException(
+            status_code=416,
+            detail="SSID '{}' not recognized. Cannot remove.".format(ssid)
+        )
     _wpa_supplicant.remove_network(ssid=ssid)
     return {"result": True}
 

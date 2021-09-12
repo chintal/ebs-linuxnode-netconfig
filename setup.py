@@ -2,6 +2,7 @@ import setuptools
 
 _requires = [
     'six',
+    'appdirs',
     'setuptools-scm',
     'fastapi',
     'python-multipart',
@@ -24,6 +25,12 @@ setuptools.setup(
     long_description='',
 
     packages=setuptools.find_packages(),
+    package_dir={'ebs.linuxnode.netconfig': 'ebs/linuxnode/netconfig'},
+    package_data={'ebs.linuxnode.netconfig': ['static/*.*',
+                                              'static/static/css/*.*',
+                                              'static/static/js/*.*',
+                                              'static/static/media/*.*']},
+
     install_requires=_requires,
     setup_requires=['setuptools_scm'],
     use_scm_version=True,

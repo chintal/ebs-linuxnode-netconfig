@@ -2,9 +2,11 @@
 
 import os
 import sys
+import shutil
 import pkg_resources
 from six.moves.configparser import ConfigParser
 from appdirs import user_config_dir
+from secrets import token_hex
 
 
 class NetconfigConfig(object):
@@ -14,6 +16,11 @@ class NetconfigConfig(object):
     _config_file = os.path.join(user_config_dir(_appname), 'config.ini')
 
     def __init__(self):
+        if not os.path.exists(os.path.dirname(self._config_file)):
+            os.makedirs(os.path.dirname(self._config_file), exist_ok=True)
+        if not os.path.exists(self._config_file):
+            _ROOT = os.path.abspath(os.path.dirname(__file__))
+            shutil.copy(os.path.join(_ROOT, 'default/config.ini'), self._config_file)
         self._config = ConfigParser()
         print("Reading Config File {}".format(self._config_file))
         self._config.read(self._config_file)
@@ -34,6 +41,9 @@ class NetconfigConfig(object):
 
     @property
     def auth_secret_key(self):
+        if not self._config.has_option(section='auth', option='secret_key'):
+            self._config.set('auth', 'secret_key', token_hex(32))
+            self._write_config()
         return self._config.get('auth', 'secret_key')
 
     @property

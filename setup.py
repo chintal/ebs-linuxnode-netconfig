@@ -29,7 +29,8 @@ setuptools.setup(
     package_data={'ebs.linuxnode.netconfig': ['static/*.*',
                                               'static/static/css/*.*',
                                               'static/static/js/*.*',
-                                              'static/static/media/*.*']},
+                                              'static/static/media/*.*',
+                                              'default/config.ini']},
 
     install_requires=_requires,
     setup_requires=['setuptools_scm'],

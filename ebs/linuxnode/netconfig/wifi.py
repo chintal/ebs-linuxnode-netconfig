@@ -60,6 +60,7 @@ class WPASupplicantProxy(object):
 
     def add_network(self, ssid, psk, **kwargs):
         logger.info("Adding WiFi network '{}' with psk '{}'".format(ssid, psk))
+        psk = '"{}"'.format(psk)
         self._config.add_network(ssid, psk=psk, key_mgmt="WPA-PSK", **kwargs)
         self._write_config()
 

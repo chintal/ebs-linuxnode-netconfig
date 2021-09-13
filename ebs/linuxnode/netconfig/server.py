@@ -52,14 +52,22 @@ from ebs.linuxnode.netconfig.core import api_app
 from ebs.linuxnode.netconfig.core import app
 
 
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 404:
+            response = await super().get_response('.', scope)
+        return response
+
+
 def build_server():
     from ebs.linuxnode.netconfig.core import auth_router
     api_app.include_router(auth_router)
     from ebs.linuxnode.netconfig.wifi import wifi_router
     api_app.include_router(wifi_router)
-    static_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    spa_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app")
     app.mount('/api', api_app)
-    app.mount('/', StaticFiles(directory=static_files_path, html=True), name="static")
+    app.mount('/', StaticFiles(directory=spa_path, html=True), name="spa_app")
 
 
 build_server()

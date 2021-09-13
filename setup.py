@@ -26,10 +26,10 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
     package_dir={'ebs.linuxnode.netconfig': 'ebs/linuxnode/netconfig'},
-    package_data={'ebs.linuxnode.netconfig': ['static/*.*',
-                                              'static/static/css/*.*',
-                                              'static/static/js/*.*',
-                                              'static/static/media/*.*',
+    package_data={'ebs.linuxnode.netconfig': ['app/*.*',
+                                              'app/static/css/*.*',
+                                              'app/static/js/*.*',
+                                              'app/static/media/*.*',
                                               'default/config.ini']},
 
     install_requires=_requires,

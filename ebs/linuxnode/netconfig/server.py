@@ -67,7 +67,7 @@ def build_server():
     api_app.include_router(wifi_router)
     spa_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app")
     app.mount('/api', api_app)
-    app.mount('/', StaticFiles(directory=spa_path, html=True), name="spa_app")
+    app.mount('/', SPAStaticFiles(directory=spa_path, html=True), name="spa_app")
 
 
 build_server()

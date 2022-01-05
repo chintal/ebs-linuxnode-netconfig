@@ -44,6 +44,8 @@ def setup_logging():
 
     # configure loguru
     logger.configure(handlers=[{"sink": sys.stdout, "serialize": JSON_LOGS}])
+    if not os.path.exists('/var/log/ebs'):
+        os.makedirs('/var/log/ebs')
     logger.add("/var/log/ebs/netconfig.log", level="INFO",
                rotation="1 week", retention="14 days")
 

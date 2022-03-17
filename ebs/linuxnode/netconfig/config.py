@@ -55,12 +55,26 @@ class NetconfigConfig(object):
         return self._config.get('auth', 'password')
 
     @property
+    def wifi_manager(self):
+        return self._config.get('wifi', 'manager', fallback='wpa_supplicant')
+
+    @property
     def wifi_device(self):
-        return self._config.get('wifi', 'device')
+        return self._config.get('wifi', 'device', fallback='wlan0')
 
     @property
     def wpa_supplicant_path(self):
+        if self.wifi_manager != 'wpa_supplicant':
+            return
         return self._config.get('wifi', 'wpa_supplicant_path')
+
+    @property
+    def ethernet_manager(self):
+        return self._config.get('ethernet', 'manager', fallback='netplan')
+
+    @property
+    def ethernet_device(self):
+        return self._config.get('ethernet', 'device', fallback='eth0')
 
 
 _config = NetconfigConfig()

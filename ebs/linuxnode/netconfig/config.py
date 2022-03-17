@@ -66,7 +66,15 @@ class NetconfigConfig(object):
     def wpa_supplicant_path(self):
         if self.wifi_manager != 'wpa_supplicant':
             return
-        return self._config.get('wifi', 'wpa_supplicant_path')
+        return self._config.get('wifi', 'wpa_supplicant_path',
+                                fallback='/etc/wpa_supplicant/wpa_supplicant.conf')
+
+    @property
+    def netplan_path(self):
+        if self.wifi_manager != 'netplan':
+            return
+        return self._config.get('wifi', 'netplan_path',
+                                fallback='/etc/netplan/01-ebs-netconfig-wifi.conf')
 
     @property
     def ethernet_manager(self):

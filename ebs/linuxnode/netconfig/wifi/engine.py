@@ -31,9 +31,11 @@ async def init():
     global _manager_proxy
     if config.wifi_manager == 'wpa_supplicant':
         from .supplicant import WPASupplicantProxy
-        _manager_proxy = WPASupplicantProxy(config.wpa_supplicant_path)
+        _manager_proxy = WPASupplicantProxy(cpath=config.wpa_supplicant_path)
     elif config.wifi_manager == 'netplan':
-        pass
+        from .netplan import NetplanWifiProxy
+        _manager_proxy = NetplanWifiProxy(cpath=config.netplan_path,
+                                          device=config.wifi_device)
 
 
 @wifi_router.get("/networks/show", response_model=List[WifiNetworkModel], status_code=200)

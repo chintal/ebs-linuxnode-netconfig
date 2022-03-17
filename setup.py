@@ -12,6 +12,7 @@ _requires = [
     'uvicorn',
     'loguru',
     'wpasupplicantconf',
+    'pyyaml',
 ]
 
 setuptools.setup(
